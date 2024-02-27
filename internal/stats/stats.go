@@ -50,6 +50,11 @@ type StageStats struct {
 	mx            *sync.Mutex
 }
 
+// todo refactor metrics gathering and reporting
+func (s *StageStats) Executed() int {
+	return s.totalExecuted
+}
+
 func NewStageStats() *StageStats {
 	return &StageStats{
 		metrics: make(reasonedExecMetrics),

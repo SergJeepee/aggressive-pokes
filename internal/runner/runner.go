@@ -6,31 +6,35 @@ import (
 	"time"
 )
 
-type Runner struct {
-	stages   []*stage
+type LoadTest struct {
+	stages   []stageRunner
 	runnable func(reporter stats.Reporter)
 }
 
-func NewRunner(runnable func(reporter stats.Reporter)) Runner {
-	return Runner{
+func NewLoadTest(runnable func(reporter stats.Reporter)) LoadTest {
+	return LoadTest{
 		runnable: runnable,
 	}
 }
 
-func (r *Runner) AddStage(qps int, duration time.Duration) {
-	r.stages = append(r.stages, newStage(len(r.stages)+1, qps, duration, r.runnable))
+func (t *LoadTest) AddQpsStage(qps int, duration time.Duration) {
+	t.stages = append(t.stages, newStageQps(len(t.stages)+1, qps, duration, t.runnable))
 }
 
-func (r *Runner) Run() {
-	if len(r.stages) == 0 {
+func (t *LoadTest) AddAbsoluteStage(amount, asyncFactor int) {
+	t.stages = append(t.stages, newStageAbsolute(len(t.stages)+1, amount, asyncFactor, t.runnable))
+}
+
+func (t *LoadTest) Start() {
+	if len(t.stages) == 0 {
 		panic("No stages to poke around")
 	}
 
-	for _, s := range r.stages {
-		s.Run()
+	for _, s := range t.stages {
+		s.run()
 	}
 	utils.ClearConsole()
-	for _, s := range r.stages {
+	for _, s := range t.stages {
 		utils.PrintBoxed("", s.format())
 	}
 

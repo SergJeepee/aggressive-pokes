@@ -3,17 +3,25 @@ package worker
 import (
 	"aggressive-pokes/internal/stats"
 	"context"
-	"fmt"
 	"sync"
 )
 
-var tasks = make(chan func(reporter stats.Reporter))
+const maxWorkerPool = 10000
+
+var tasks = make(chan func(reporter stats.Reporter), maxWorkerPool)
 
 func Submit(task func(reporter stats.Reporter)) {
 	tasks <- task
 }
 
+func Cancel() {
+	close(tasks)
+}
+
 func StartWorkers(ctx context.Context, reporter stats.Reporter, n int) chan struct{} {
+	if float64(n) > maxWorkerPool {
+		n = maxWorkerPool
+	}
 	wg := &sync.WaitGroup{}
 	wg.Add(n)
 	poolFinished := make(chan struct{})
@@ -28,7 +36,8 @@ func StartWorkers(ctx context.Context, reporter stats.Reporter, n int) chan stru
 						return
 					case runnable, ok := <-tasks:
 						if !ok {
-							fmt.Printf("Worker %v: Channel closed\n", w)
+							wg.Done()
+							//fmt.Printf("Worker %v: Channel closed\n", w)
 							return
 						}
 						runnable(reporter)

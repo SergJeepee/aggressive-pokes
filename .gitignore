@@ -17,5 +17,10 @@
 # Go workspace file
 go.work
 
+# Templ go files
+*_templ.go
+
 # Intellij
 .idea
+
+.DS_Store

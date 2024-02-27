@@ -8,12 +8,11 @@ import (
 )
 
 func main() {
-	httpRunnable := runnables.HttpRunnable("http://localhost:8081/pixel", readPayload("fixtures/payload.json"))
-	r := runner.NewRunner(httpRunnable)
-	r.AddStage(100, 3*time.Second)
-	r.AddStage(300, 3*time.Second)
-	r.AddStage(500, 3*time.Second)
-	r.Run()
+	httpRunnable := runnables.HttpRunnable("http://localhost:8081/pixel", readPayload("internal/fixtures/payload.json"))
+	r := runner.NewLoadTest(httpRunnable)
+	r.AddQpsStage(1000, 10*time.Second)
+	//r.AddAbsoluteStage(2000, 50)
+	r.Start()
 }
 
 func readPayload(path string) []byte {

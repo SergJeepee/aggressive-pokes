@@ -12,16 +12,16 @@ func main() {
 	mux.Handle("/pixel", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		random := rand.Int31n(10)
 		if random < 5 {
-			time.Sleep(time.Duration(rand.Int31n(1000)) * time.Millisecond)
+			time.Sleep(time.Duration(rand.Int31n(500)) * time.Millisecond)
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
 		if random < 8 {
-			time.Sleep(time.Duration(rand.Int31n(500)) * time.Millisecond)
+			time.Sleep(time.Duration(rand.Int31n(100)) * time.Millisecond)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		time.Sleep(time.Duration(rand.Int31n(2000)) * time.Millisecond)
+		time.Sleep(time.Duration(rand.Int31n(300)) * time.Millisecond)
 
 		w.WriteHeader(http.StatusInternalServerError)
 		return

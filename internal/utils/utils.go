@@ -38,7 +38,14 @@ func printBoxLine(opening bool) {
 }
 
 func printTitledBoxLine(title string) {
-	fmt.Printf("\n==== %s %s\n", strings.TrimSpace(title), strings.Repeat("=", printBoxLength-len(title)-6))
+	runes := []rune(strings.TrimSpace(strings.ReplaceAll(title, "\n", " ")))
+	repeat := printBoxLength - len(runes) - 6
+	if repeat <= 0 {
+		repeat = 3
+		runes = runes[:printBoxLength-12]
+		runes = append(runes, []rune("...")...)
+	}
+	fmt.Printf("\n==== %s %s\n", string(runes), strings.Repeat("=", repeat))
 }
 
 func wrapPrint(str string) {

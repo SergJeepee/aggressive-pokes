@@ -7,22 +7,22 @@ import (
 )
 
 type LoadTest struct {
-	stages   []stageRunner
-	runnable func(reporter stats.Reporter)
+	stages []stageRunner
+	//runnable func(reporter stats.Reporter)
 }
 
-func NewLoadTest(runnable func(reporter stats.Reporter)) LoadTest {
+func NewLoadTest() LoadTest {
 	return LoadTest{
-		runnable: runnable,
+		//runnable: runnable,
 	}
 }
 
-func (t *LoadTest) AddQpsStage(qps int, duration time.Duration) {
-	t.stages = append(t.stages, newStageQps(len(t.stages)+1, qps, duration, t.runnable))
+func (t *LoadTest) AddQpsStage(qps int, duration time.Duration, runnable func(reporter stats.Reporter)) {
+	t.stages = append(t.stages, newStageQps(len(t.stages)+1, qps, duration, runnable))
 }
 
-func (t *LoadTest) AddAbsoluteStage(amount, asyncFactor int) {
-	t.stages = append(t.stages, newStageAbsolute(len(t.stages)+1, amount, asyncFactor, t.runnable))
+func (t *LoadTest) AddAbsoluteStage(amount, asyncFactor int, runnable func(reporter stats.Reporter)) {
+	t.stages = append(t.stages, newStageAbsolute(len(t.stages)+1, amount, asyncFactor, runnable))
 }
 
 func (t *LoadTest) Start() {
@@ -37,5 +37,4 @@ func (t *LoadTest) Start() {
 	for _, s := range t.stages {
 		utils.PrintBoxed("", s.format())
 	}
-
 }

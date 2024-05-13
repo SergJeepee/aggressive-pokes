@@ -20,7 +20,7 @@ func NewReporter(stats *StageStats) Reporter {
 	}
 }
 
-func (r *Reporter) ReportSuccess(reason string, elapsed time.Duration) {
+func (r *Reporter) Report(reason string, elapsed time.Duration) {
 	r.mx.Lock()
 	defer r.mx.Unlock()
 
@@ -63,7 +63,7 @@ func NewStageStats() *StageStats {
 }
 
 func (s *StageStats) Format(includePercentiles bool) string {
-	return fmt.Sprintf("Total: %-11v |\n%v", s.totalExecuted, s.metrics.format(includePercentiles))
+	return fmt.Sprintf("Total: %-18v |\n%v", s.totalExecuted, s.metrics.format(includePercentiles))
 }
 
 type reasonedExecMetrics map[string]reasonBucket
@@ -74,7 +74,7 @@ func (m *reasonedExecMetrics) format(includePercentiles bool) string {
 		return "No metrics"
 	}
 	for k, v := range *m {
-		entries = append(entries, fmt.Sprintf("%-18v | %-18v", k, v.Format(includePercentiles)))
+		entries = append(entries, fmt.Sprintf("%-25v | %-25v", k, v.Format(includePercentiles)))
 	}
 
 	sort.Strings(entries)
@@ -89,9 +89,14 @@ type reasonBucket struct {
 
 func (b *reasonBucket) Format(includePercentiles bool) string {
 	if includePercentiles {
-		return fmt.Sprintf("count: %-6v | avg duration: %-10v | percentiles: %v", b.count, b.avgDuration(), b.percentile(50, 90, 99))
+		percentiles := ""
+		for k, v := range b.percentile(50, 90, 99) {
+			percentiles += fmt.Sprintf("[ %v: %v ]", k, v)
+		}
+
+		return fmt.Sprintf("count: %-6v | mean: %-10v | percentiles: %v", b.count, b.avgDuration(), percentiles)
 	}
-	return fmt.Sprintf("count: %-6v | avg duration: %-10v", b.count, b.avgDuration())
+	return fmt.Sprintf("count: %-6v | mean: %-10v", b.count, b.avgDuration())
 
 }
 

@@ -6,9 +6,9 @@ import (
 	"sync"
 )
 
-const maxWorkerPool = 10000
+const MaxWorkerPool = 10000
 
-var tasks = make(chan func(reporter stats.Reporter), maxWorkerPool)
+var tasks chan func(reporter stats.Reporter)
 
 func Submit(task func(reporter stats.Reporter)) {
 	tasks <- task
@@ -19,9 +19,11 @@ func Cancel() {
 }
 
 func StartWorkers(ctx context.Context, reporter stats.Reporter, n int) chan struct{} {
-	if float64(n) > maxWorkerPool {
-		n = maxWorkerPool
-	}
+	//if float64(n) > MaxWorkerPool {
+	n = MaxWorkerPool
+	//}
+	tasks = make(chan func(reporter stats.Reporter), MaxWorkerPool)
+
 	wg := &sync.WaitGroup{}
 	wg.Add(n)
 	poolFinished := make(chan struct{})

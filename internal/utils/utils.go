@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"aggressive-pokes/internal/ltlogger"
+	"cloud.google.com/go/pubsub"
+	"context"
 	"fmt"
 	"math"
 	"os"
@@ -99,5 +102,48 @@ func ClearConsole() {
 	err := cmd.Run()
 	if err != nil {
 		fmt.Printf(err.Error())
+	}
+}
+
+func GetPubsubTopic(logger ltlogger.Logger, client *pubsub.Client, topic string) *pubsub.Topic {
+	t := client.Topic(topic)
+	exists, err := t.Exists(context.Background())
+	if err != nil {
+		logger.Fatal("Failed to check if topic exists", "topic", topic, "err", err)
+	}
+	if !exists {
+		_, err := client.CreateTopic(context.Background(), topic)
+		if err != nil {
+			logger.Fatal("Failed to create topic", "topic", topic, "err", err)
+		}
+		logger.Info("Topic created", "topic", topic)
+	}
+	logger.Info("Got topic", "topic", topic)
+
+	return t
+}
+
+func GetPubsubSubscription(logger ltlogger.Logger, client *pubsub.Client, topic *pubsub.Topic, subscription string) *pubsub.Subscription {
+	s := client.Subscription(subscription)
+	exists, err := s.Exists(context.Background())
+	if err != nil {
+		logger.Fatal("Failed to check if subscription", "subscription", subscription, "err", err)
+	}
+	if !exists {
+		sconfig := pubsub.SubscriptionConfig{Topic: topic}
+		_, err := client.CreateSubscription(context.Background(), subscription, sconfig)
+		if err != nil {
+			logger.Fatal("Failed to create subscription", "subscription", subscription, "err", err)
+		}
+		logger.Info("Subscription created", "subscription", subscription)
+	}
+	logger.Info("Got subscription", "subscription", subscription)
+	return s
+}
+
+func SetPubsubEmulatorAddr() {
+	err := os.Setenv("PUBSUB_EMULATOR_HOST", "127.0.0.1:8085")
+	if err != nil {
+		panic(err)
 	}
 }

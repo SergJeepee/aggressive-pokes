@@ -226,8 +226,8 @@ func newStageAbsolute(id, amount, asyncFactor int, runnable func(reporter stats.
 	if amount < 1 || amount > 1_000_000_000 {
 		panic("Amount should be in range [1, 1_000_000_000]")
 	}
-	if asyncFactor < 1 || asyncFactor > 100_000 {
-		panic("Async factor should be in range [1, 100_000]")
+	if asyncFactor < 1 || asyncFactor > worker.MaxWorkerPool {
+		panic(fmt.Sprintf("Async factor should be in range [1, %v]", worker.MaxWorkerPool))
 	}
 
 	return &absoluteStage{

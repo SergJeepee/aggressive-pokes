@@ -19,9 +19,9 @@ func Cancel() {
 }
 
 func StartWorkers(ctx context.Context, reporter stats.Reporter, n int) chan struct{} {
-	//if float64(n) > MaxWorkerPool {
-	n = MaxWorkerPool
-	//}
+	if float64(n) > MaxWorkerPool {
+		n = MaxWorkerPool
+	}
 	tasks = make(chan func(reporter stats.Reporter), MaxWorkerPool)
 
 	wg := &sync.WaitGroup{}

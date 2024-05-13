@@ -46,7 +46,7 @@ func (s *qpsStage) run() {
 	defer cancel()
 
 	reporter := stats.NewReporter(s.stats)
-	workersFinished := worker.StartWorkers(ctx, reporter, s.qps*5)
+	workersFinished := worker.StartWorkers(ctx, reporter, s.qps*100)
 	s.runReportRoutine(ctx, 1000*time.Millisecond)
 	s.runTaskRoutine(ctx)
 	utils.PrintBoxed("", s.format(), "Starting...")

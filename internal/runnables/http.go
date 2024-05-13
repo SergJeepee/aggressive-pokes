@@ -5,7 +5,6 @@ import (
 	"aggressive-pokes/internal/stats"
 	"bytes"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -70,14 +69,12 @@ func HttpRunnable(logger ltlogger.Logger, url string, body []byte, headers map[s
 			req.Header.Set(k, v)
 		}
 		if err != nil {
-			fmt.Printf("%s", err.Error())
 			reporter.ReportFailure("request_setup_error", err.Error(), time.Since(start))
 			return
 		}
 
 		res, err := httpClient.Do(req)
 		if err != nil {
-			fmt.Printf("%s", err.Error())
 			if res == nil {
 				if errors.As(err, &http.ErrHandlerTimeout) {
 					reporter.ReportFailure("http_timeout", err.Error(), time.Since(start))
